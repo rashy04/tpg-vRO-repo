@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dunes-script-module name="testPSaction" result-type="Properties" api-version="6.0.0" id="fd67bec4-7600-4a18-8967-a023a3b24aaf" version="0.2.0" category-name="Test">
+  <runtime><![CDATA[powercli:-powershell-7.4]]></runtime>
+  <script encoded="false"><![CDATA[function Handler($context, $inputs) {
+    $inputsString = $inputs | ConvertTo-Json -Compress
+
+    Write-Host "Inputs were $inputsString"
+
+    $output=@{status = 'done'}
+
+    return $output
+}
+
+# VMware Cloud Foundation 4.9 - VM Renaming Script for Compute Allocation Events
+# This script monitors and renames VMs after compute allocation events
+
+# ============================================================================
+# CONFIGURATION
+# ============================================================================
+
+$vCenterServer = "vcenter.example.com"
+$vCenterUser = "administrator@vsphere.local"
+$vCenterPassword = "your_password"
+
+# Event types to monitor (common allocation events)
+$allocationEvents = @(
+    "VmCreatedEvent",
+    "VmDeployedEvent",
+    "VmClonedEvent",
+    "VmRegisteredEvent"
+)
+
+# Naming convention parameters
+$namingPrefix = "PROD"
+$namingDelimiter = "-"
+$autoIncrementStart = 1
+
+# ============================================================================
+# FUNCTIONS
+# ============================================================================
+
+function Connect-ToVCenter {
+    param(
+        [string]$Server,
+        [string]$User,
+        [string]$Password
+    )
+    
+    try {
+        Write-Host "Connecting to vCenter Server: $Server" -ForegroundColor Cyan
+        Connect-VIServer -Server $Server -User $User -Password $Password -ErrorAction Stop | Out-Null
+        Write-Host "Successfully connected to vCenter" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Failed to connect to vCenter: $_" -ForegroundColor Red
+        exit 1
+    }
+}
+
+function Get-AllocationEvents {
+    param(
+        [int]$HoursBack = 24,
+        [string[]]$EventTypes
+    )
+    
+    $startTime = (Get-Date).AddHours(-$HoursBack)
+    
+    try {
+        $events = Get-VIEvent -Start $startTime -Types Info | Where-Object {
+            $_.GetType().Name -in $EventTypes
+        }
+        
+        return $events
+    }
+    catch {
+        Write-Host "Error retrieving events: $_" -ForegroundColor Red
+        return $null
+    }
+}
+
+function Generate-VMName {
+    param(
+        [string]$Prefix,
+        [string]$Delimiter,
+        [int]$Counter,
+        [object]$EventData
+    )
+    
+    # Generate name format: PROD-VM-001
+    $newName = "{0}{1}VM{1}{2:D3}" -f $Prefix, $Delimiter, $Counter
+    
+    return $newName
+}
+
+function Rename-VMFromEvent {
+    param(
+        [object]$Event,
+        [string]$NewName
+    )
+    
+    try {
+        $vmId = $Event.Vm.Vm
+        $vm = Get-VM -Id $vmId -ErrorAction Stop
+        
+        if ($vm) {
+            Write-Host "Renaming VM: '$($vm.Name)' -> '$NewName'" -ForegroundColor Yellow
+            Set-VM -VM $vm -Name $NewName -Confirm:$false -ErrorAction Stop | Out-Null
+            Write-Host "Successfully renamed VM to: $NewName" -ForegroundColor Green
+            
+            return @{
+                Success = $true
+                OldName = $vm.Name
+                NewName = $NewName
+                Timestamp = Get-Date
+            }
+        }
+    }
+    catch {
+        Write-Host "Error renaming VM: $_" -ForegroundColor Red
+        return @{
+            Success = $false
+            Error = $_
+            Timestamp = Get-Date
+        }
+    }
+}
+
+# ============================================================================
+# MAIN EXECUTION
+# ============================================================================
+
+function Main {
+    param(
+        [int]$HoursBack = 24
+    )
+    
+    # Initialize results array
+    $results = @()
+    $counter = $autoIncrementStart
+    
+    Write-Host "============================================" -ForegroundColor Cyan
+    Write-Host "VCF 4.9 VM Allocation & Rename Script" -ForegroundColor Cyan
+    Write-Host "============================================" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Connect to vCenter
+    Connect-ToVCenter -Server $vCenterServer -User $vCenterUser -Password $vCenterPassword
+    
+    # Get allocation events
+    Write-Host "Scanning for allocation events in the last $HoursBack hours..." -ForegroundColor Cyan
+    $events = Get-AllocationEvents -HoursBack $HoursBack -EventTypes $allocationEvents
+    
+    if (-not $events) {
+        Write-Host "No allocation events found in the specified timeframe." -ForegroundColor Yellow
+        Disconnect-VIServer -Confirm:$false
+        return $results
+    }
+    
+    Write-Host "Found $($events.Count) allocation event(s)" -ForegroundColor Green
+    Write-Host ""
+    
+    # Process each event
+    foreach ($event in $events) {
+        Write-Host "Processing Event: $($event.GetType().Name)" -ForegroundColor Cyan
+        Write-Host "Event Time: $($event.CreatedTime)" -ForegroundColor Gray
+        
+        # Generate new name
+        $newName = Generate-VMName -Prefix $namingPrefix -Delimiter $namingDelimiter -Counter $counter
+        
+        # Rename VM
+        $result = Rename-VMFromEvent -Event $event -NewName $newName
+        $results += $result
+        
+        $counter++
+        Write-Host ""
+    }
+    
+    # Disconnect from vCenter
+    Disconnect-VIServer -Confirm:$false | Out-Null
+    
+    # Summary
+    Write-Host "============================================" -ForegroundColor Cyan
+    Write-Host "Execution Summary" -ForegroundColor Cyan
+    Write-Host "============================================" -ForegroundColor Cyan
+    Write-Host "Total Events Processed: $($results.Count)" -ForegroundColor White
+    Write-Host "Successful Renames: $($results | Where-Object {$_.Success -eq $true} | Measure-Object).Count" -ForegroundColor Green
+    Write-Host "Failed Renames: $($results | Where-Object {$_.Success -eq $false} | Measure-Object).Count" -ForegroundColor Red
+    Write-Host ""
+    
+    return $results
+}
+
+# Execute main function
+$executionResults = Main -HoursBack 24
+
+# Export results to CSV (optional)
+$executionResults | Export-Csv -Path ".\VM-Rename-Log-$(Get-Date -Format 'yyyyMMdd-HHmmss').csv" -NoTypeInformation
+]]></script>
+</dunes-script-module>

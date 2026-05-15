@@ -1,0 +1,170 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item4" object-name="workflow:name=generic" id="fb284524-d6c6-4098-b28d-027b96ded804" version="0.2.0" api-version="6.0.0" editor-version="2.0" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[eventTest]]></display-name>
+  <position y="32.86093236458962" x="14.304661822948134"/>
+  <input>
+    <param name="HowManyVMs" type="number"/>
+  </input>
+  <output>
+    <param name="newVM" type="VC:VirtualMachine"/>
+  </output>
+  <attrib name="NewVmName" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="vmGuestOs" type="VC:VirtualMachineGuestOsIdentifier" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='dosGuest'&dunesName='VC:VirtualMachineGuestOsIdentifier']]></value>
+  </attrib>
+  <attrib name="vmFolder" type="VC:VmFolder" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vc-mgmt-a.site-a.vcf.lab%2Cid:group-v85'&dunesName='VC:VmFolder']]></value>
+  </attrib>
+  <attrib name="vmDiskSize" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1024.0]]></value>
+  </attrib>
+  <attrib name="vmNbOfCpus" type="number" read-only="false">
+    <value encoded="n"><![CDATA[1.0]]></value>
+  </attrib>
+  <attrib name="vmNetwork" type="VC:Network" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vc-mgmt-a.site-a.vcf.lab%2Cid:network-44'&dunesName='VC:Network']]></value>
+  </attrib>
+  <attrib name="vmDatastore" type="VC:Datastore" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vc-mgmt-a.site-a.vcf.lab%2Cid:datastore-16'&dunesName='VC:Datastore']]></value>
+  </attrib>
+  <attrib name="diskThinProvisioned" type="boolean" read-only="false">
+    <value encoded="n"><![CDATA[true]]></value>
+  </attrib>
+  <attrib name="vmResourcePool" type="VC:ResourcePool" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vc-mgmt-a.site-a.vcf.lab%2Cid:resgroup-11'&dunesName='VC:ResourcePool']]></value>
+  </attrib>
+  <attrib name="vmHost" type="VC:HostSystem" read-only="false">
+    <value encoded="n"><![CDATA[dunes://service.dunes.ch/CustomSDKObject?id='vc-mgmt-a.site-a.vcf.lab%2Cid:host-13'&dunesName='VC:HostSystem']]></value>
+  </attrib>
+  <attrib name="vmMemorySize" type="number" read-only="false">
+    <value encoded="n"><![CDATA[4.0]]></value>
+  </attrib>
+  <attrib name="counter" type="number" read-only="false">
+    <value encoded="n"><![CDATA[0.0]]></value>
+  </attrib>
+  <attrib name="numberOfVmsToCreate" type="number" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item1" out-name="item6" business-status="" type="link" linked-workflow-id="BD808080808080808080808080808080A3C280800122528313869552e41805bb1">
+    <display-name><![CDATA[Create simple virtual machine]]></display-name>
+    <in-binding>
+      <bind name="vmName" type="string" export-name="NewVmName">
+        <description><![CDATA[Virtual machine name]]></description>
+      </bind>
+      <bind name="vmGuestOs" type="VC:VirtualMachineGuestOsIdentifier" export-name="vmGuestOs">
+        <description><![CDATA[Guest operating system to use with the virtual machine]]></description>
+      </bind>
+      <bind name="vmFolder" type="VC:VmFolder" export-name="vmFolder">
+        <description><![CDATA[Virtual machine folder]]></description>
+      </bind>
+      <bind name="vmResourcePool" type="VC:ResourcePool" export-name="vmResourcePool">
+        <description><![CDATA[Resource pool in which to create the virtual machine]]></description>
+      </bind>
+      <bind name="vmHost" type="VC:HostSystem" export-name="vmHost">
+        <description><![CDATA[Host on which to create the virtual machine]]></description>
+      </bind>
+      <bind name="vmDiskSize" type="number" export-name="vmDiskSize">
+        <description><![CDATA[Size of virtual disk in GB]]></description>
+      </bind>
+      <bind name="vmMemorySize" type="number" export-name="vmMemorySize">
+        <description><![CDATA[Virtual machine's memory size in MB]]></description>
+      </bind>
+      <bind name="vmNbOfCpus" type="number" export-name="vmNbOfCpus">
+        <description><![CDATA[Number of virtual processors]]></description>
+      </bind>
+      <bind name="vmNetwork" type="VC:Network" export-name="vmNetwork">
+        <description><![CDATA[The network to connect to]]></description>
+      </bind>
+      <bind name="vmDatastore" type="VC:Datastore" export-name="vmDatastore">
+        <description><![CDATA[Datastore in which to store the virtual machine files]]></description>
+      </bind>
+      <bind name="diskThinProvisioned" type="boolean" export-name="diskThinProvisioned">
+        <description><![CDATA[Make disk thin-provisioned?]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="newVM" type="VC:VirtualMachine" export-name="newVM">
+        <description><![CDATA[The newly created VM]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[ New CreateVM workflow]]></description>
+    <position y="80.0" x="560.0"/>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item1" type="task">
+    <display-name><![CDATA[setVmName]]></display-name>
+    <script encoded="false"><![CDATA[//NewVmName = "labvm" + (counter+1);
+
+function pad(number,size) {
+    var s = String(number);
+    while (s.length < (size || 2)) {s = "0" + s;}
+return s;
+}
+NewVmName = "labvm" + pad((counter + 1), 3);
+
+System.warn ("Name: " + NewVmName )
+]]></script>
+    <in-binding>
+      <bind name="counter" type="number" export-name="counter"/>
+      <bind name="HowManyVMs" type="number" export-name="numberOfVmsToCreate"/>
+    </in-binding>
+    <out-binding>
+      <bind name="NewVmName" type="string" export-name="NewVmName"/>
+    </out-binding>
+    <description><![CDATA[Simple task with custom script capability.]]></description>
+    <position y="40.0" x="400.0"/>
+  </workflow-item>
+  <workflow-item name="item3" type="end" end-mode="0">
+    <in-binding/>
+    <position y="160.0" x="60.0"/>
+  </workflow-item>
+  <workflow-item name="item4" out-name="item2" type="custom-condition" alt-out-name="item3">
+    <display-name><![CDATA[Multiple VMs?]]></display-name>
+    <script encoded="false"><![CDATA[return (counter < HowManyVMs);]]></script>
+    <in-binding>
+      <bind name="HowManyVMs" type="number" export-name="HowManyVMs"/>
+      <bind name="counter" type="number" export-name="counter"/>
+    </in-binding>
+    <out-binding/>
+    <description><![CDATA[Custom decision based on a custom script.]]></description>
+    <position y="32.86093236458962" x="114.30466182294813"/>
+  </workflow-item>
+  <workflow-item name="item5" prototype-id="increase-counter" out-name="item4" content-mode="x" type="task">
+    <display-name><![CDATA[Increase counter]]></display-name>
+    <script encoded="false"><![CDATA[//Auto-generated script
+counter = counter + 1;]]></script>
+    <in-binding>
+      <bind name="counter" type="number" export-name="counter">
+        <description><![CDATA[Item to increase]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="counter" type="number" export-name="counter">
+        <description><![CDATA[Increased item]]></description>
+      </bind>
+    </out-binding>
+    <description><![CDATA[Increment a counter by one.]]></description>
+    <position y="120.0" x="260.0"/>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item5" type="task" script-module="com.vmware.library.vc.vm.power/startVM">
+    <display-name><![CDATA[startVM]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.library.vc.vm.power").startVM(vm,host);
+]]></script>
+    <in-binding>
+      <bind name="vm" type="VC:VirtualMachine" export-name="">
+        <description><![CDATA[VM to start or resume]]></description>
+      </bind>
+      <bind name="host" type="VC:HostSystem" export-name="">
+        <description><![CDATA[[Optional] The host where the virtual machine is to be powered on. If no host is specified, the current associated host is used. This field must specify a host that is part of the same compute resource that the virtual machine is currently associated with. If this host is not compatible, the current host association is used. ]]></description>
+      </bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="VC:Task" export-name=""/>
+    </out-binding>
+    <description><![CDATA[Add a note to the workflow schema.]]></description>
+    <position y="140.0" x="400.0"/>
+  </workflow-item>
+  <presentation/>
+</workflow>
